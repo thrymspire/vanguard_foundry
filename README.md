@@ -101,11 +101,18 @@ ollama_vanguard/
 │   ├── bridge.py                # Dual-bus bridge server on IPv4 loopback (11435)
 │   ├── register_model.py        # Hardware-tuned Modelfile synthesizer & registrar
 │   └── vanguard.html            # Alien Purple x M3 studio with drift telemetry & prompt caching
+├── systemd/
+│   ├── ollama-override.conf     # High-throughput daemon override for systemd
+│   └── vanguard-bridge.service  # Systemd service unit for local bridge
 ├── .github/
 │   └── ISSUE_TEMPLATE/          # Bug report & feature request templates
 ├── index.html                   # Public GitHub Pages landing portal
+├── Makefile                     # Universal command runner (setup, start, models, clean)
+├── setup-linux.sh               # Universal environment provisioner for any Linux distro
+├── start-vanguard.sh            # 1-Click Linux cockpit launcher
+├── register-models.sh           # 1-Click Linux GGUF auto-registration
 ├── Start-Vanguard.bat           # 1-Click Windows Foundry launcher with tuned flags
-├── Register-Models.bat          # 1-Click recursive GGUF auto-registration
+├── Register-Models.bat          # 1-Click Windows recursive GGUF auto-registration
 ├── LICENSE                      # MIT Open Source License
 ├── CONTRIBUTING.md              # Contribution standards & workflow
 ├── SECURITY.md                  # Air-gapped security & vulnerability disclosure
@@ -116,18 +123,36 @@ ollama_vanguard/
 
 ## 🚀 Quick Start
 
-### 1. Launch Vanguard (1-Click)
-Double-click `Start-Vanguard.bat` on Windows:
+### 1. Launch Vanguard
+
+#### On Linux (Any Distribution: Ubuntu, Debian, Fedora, Arch, openSUSE, Alpine):
+```bash
+# 1. One-Time Setup: installs Ollama, configures ROCm/CUDA/AVX-512, writes vanguard-env.sh
+chmod +x setup-linux.sh && ./setup-linux.sh
+
+# 2. Launch Cockpit (starts Ollama daemon, bridge server, and opens browser)
+./start-vanguard.sh
+# (or simply: make start)
+```
+
+#### On Windows:
+Double-click `Start-Vanguard.bat`:
 * Verifies Ollama is running (auto-starts `ollama serve` if offline).
 * Launches the local background bridge (`src/bridge.py` on `127.0.0.1:11435`).
 * Opens the glassmorphic cockpit studio in your default web browser.
 
+---
+
 ### 2. Drop-In Any GGUF Model
 Vanguard requires **zero manual coding** to register new models:
 1. Download any quantized `.gguf` file (e.g. from *bartowski*, *unsloth*, or *TheBloke* on Hugging Face).
-2. Place the file inside `models/`.
-3. Click **"⚡ Scan Dropped GGUFs"** in the Vanguard dashboard header (or run `Register-Models.bat`).
-4. The synthesizer profiles your CPU, creates an optimized Modelfile (`num_ctx 4096`, `num_thread 8`), registers `local-<name>:latest`, and hot-reloads the UI dropdown.
+2. Place the file inside `models/` (or any subfolder like `models/Qwen/`, `models/Gemma/`, etc.).
+3. Click **"⚡ Scan Dropped GGUFs"** in the Vanguard dashboard header:
+   * **Linux**: `./register-models.sh` (or `make models`)
+   * **Windows**: `Register-Models.bat`
+4. The synthesizer profiles your CPU/GPU, creates an optimized Modelfile (`num_ctx 4096`, `num_thread 8`), registers `local-<name>:latest`, and hot-reloads the UI dropdown.
+
+---
 
 ### 3. Dialogue & Forge Artifacts
 * Chat freely with full streaming telemetry (Time, Tokens, `tok/s`).

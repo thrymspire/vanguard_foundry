@@ -10,12 +10,18 @@ if SRC_DIR not in sys.path:
     sys.path.insert(0, SRC_DIR)
 BASE_DIR = os.path.dirname(SRC_DIR)
 ARTIFACTS_DIR = os.path.join(BASE_DIR, "artifacts")
-MODELS_DIR = os.path.join(BASE_DIR, "models")
-GLOBAL_ALIEN_DIR = r"C:\Users\Thrym\Desktop\Alien Artifacts"
+HOME_DIR = os.path.expanduser("~")
+GLOBAL_ALIEN_DIR = os.environ.get(
+    "VANGUARD_GLOBAL_DIR",
+    os.path.join(HOME_DIR, "Desktop", "Alien Artifacts")
+)
 
 os.makedirs(ARTIFACTS_DIR, exist_ok=True)
 os.makedirs(MODELS_DIR, exist_ok=True)
-os.makedirs(GLOBAL_ALIEN_DIR, exist_ok=True)
+try:
+    os.makedirs(GLOBAL_ALIEN_DIR, exist_ok=True)
+except Exception:
+    pass
 
 PORT = 11435
 

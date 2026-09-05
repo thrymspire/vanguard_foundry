@@ -1,0 +1,21 @@
+# ==============================================================================
+# Ollama Vanguard Bridge - Systemd Service Unit
+# Location: ~/.config/systemd/user/vanguard-bridge.service or /etc/systemd/system/vanguard-bridge.service
+# ==============================================================================
+
+[Unit]
+Description=Ollama Vanguard Local Bridge Server
+After=network.target ollama.service
+Wants=ollama.service
+
+[Service]
+Type=simple
+WorkingDirectory=%h/Desktop/Ollama-Vanguard
+ExecStart=/usr/bin/python3 %h/Desktop/Ollama-Vanguard/src/bridge.py
+Restart=on-failure
+RestartSec=3
+Environment="PYTHONUNBUFFERED=1"
+Environment="VANGUARD_BRIDGE_PORT=11435"
+
+[Install]
+WantedBy=default.target
