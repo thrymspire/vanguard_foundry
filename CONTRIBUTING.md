@@ -17,8 +17,8 @@ Thank you for your interest in contributing to **Vanguard Foundry**! This projec
 
 1. **Fork & Clone**:
    ```bash
-   git clone https://github.com/thrymspire/ollama_vanguard.git
-   cd ollama_vanguard
+   git clone https://github.com/thrymspire/vanguard_foundry.git
+   cd vanguard_foundry
    ```
 
 2. **Launch Vanguard Foundry**:

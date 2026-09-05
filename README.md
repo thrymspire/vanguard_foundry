@@ -12,7 +12,7 @@
   [![Air-Gapped: 100% Local](https://img.shields.io/badge/Privacy-100%25%20Air--Gapped-9d5cff.svg)]()
 
   <p align="center">
-    <a href="https://thrymspire.github.io/ollama_vanguard/"><strong>Explore Live Landing Page &raquo;</strong></a>
+    <a href="https://thrymspire.github.io/vanguard_foundry/"><strong>Explore Live Landing Page &raquo;</strong></a>
     &nbsp;&bull;&nbsp;
     <a href="src/vanguard.html">Launch Local Studio</a>
     &nbsp;&bull;&nbsp;
