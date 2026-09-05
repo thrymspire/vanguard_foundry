@@ -4,7 +4,7 @@ setlocal
 cd /d "%~dp0"
 
 echo =======================================================================
-echo     OLLAMA VANGUARD // GGUF AUTO-REGISTRATION TOOL
+echo     VANGUARD FOUNDRY // GGUF AUTO-REGISTRATION TOOL
 echo =======================================================================
 echo.
 echo [*] Scanning "%~dp0models" for dropped .gguf files...

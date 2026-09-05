@@ -1,7 +1,7 @@
 <div align="center">
-  <img src="assets/logo.svg" alt="Ollama Vanguard - Formline Cockpit Insignia" width="760" />
+  <img src="assets/logo.svg" alt="Vanguard Foundry - Formline Cockpit Insignia" width="760" />
 
-  # OLLAMA VANGUARD
+  # VANGUARD FOUNDRY
   ### Universal Local AI Foundry &bull; Real-time Context Drift Telemetry &bull; Alien Artifact Compiler
 
   [![License: MIT](https://img.shields.io/badge/License-MIT-9d5cff.svg)](LICENSE)
@@ -26,9 +26,9 @@
 
 ## 🌌 Overview
 
-**Ollama Vanguard** is a high-performance local AI cockpit and artifact compiler designed for high-throughput model execution, zero-code `.gguf` drop-in discovery, and real-time context drift surveillance. 
+**Vanguard Foundry** is a high-performance local AI cockpit and artifact compiler designed for high-throughput model execution, zero-code `.gguf` drop-in discovery, and real-time context drift surveillance. 
 
-Operating completely air-gapped without external cloud dependencies, Vanguard bridges raw conversational LLM streams into permanent, interactive, glassmorphic **Alien Artifacts** featuring stateful checklists, glowing telemetry meters, and live code inspection.
+Operating completely air-gapped without external cloud dependencies, Vanguard Foundry bridges raw conversational LLM streams into permanent, interactive, glassmorphic **Alien Artifacts** featuring stateful checklists, glowing telemetry meters, and live code inspection.
 
 ---
 
@@ -85,7 +85,7 @@ $$\text{Context Fidelity} = \max\Big(0, \min\big(100, 100 - \Delta_{\text{drift}
 ## 📁 Repository Architecture
 
 ```text
-ollama_vanguard/
+vanguard_foundry/
 ├── assets/
 │   └── logo.svg                 # Subtle abstract formline cockpit SVG emblem
 ├── artifacts/                   # Storage for compiled Alien HTML artifacts
@@ -193,7 +193,7 @@ Connect any model registered in Vanguard to external coding assistants using Oll
 {
   "models": [
     {
-      "title": "Ollama Vanguard",
+      "title": "Vanguard Foundry",
       "provider": "ollama",
       "model": "phi3.5:3.8b",
       "apiBase": "http://localhost:11434"

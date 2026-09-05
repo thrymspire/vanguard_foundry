@@ -4,7 +4,7 @@ setlocal enabledelayedexpansion
 cd /d "%~dp0"
 
 echo =======================================================================
-echo         OLLAMA VANGUARD // UNIVERSAL FOUNDRY LAUNCHER
+echo         VANGUARD FOUNDRY // UNIVERSAL LAUNCHER
 echo =======================================================================
 echo.
 
@@ -56,12 +56,12 @@ if errorlevel 1 (
 )
 
 :: 3. Launch Dashboard in Browser
-echo [*] Opening Ollama Vanguard dashboard in your default browser...
+echo [*] Opening Vanguard Foundry dashboard in your default browser...
 start "" "%~dp0src\vanguard.html"
 
 echo.
 echo =======================================================================
-echo  [+] Ollama Vanguard is ready!
+echo  [+] Vanguard Foundry is ready!
 echo  ---------------------------------------------------------------------
 echo  * Web Dashboard:  src\vanguard.html
 echo  * Bridge Server:  http://127.0.0.1:11435

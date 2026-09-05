@@ -1,10 +1,10 @@
 # ==============================================================================
-# Ollama Vanguard Bridge - Systemd Service Unit
+# Vanguard Foundry Bridge - Systemd Service Unit
 # Location: ~/.config/systemd/user/vanguard-bridge.service or /etc/systemd/system/vanguard-bridge.service
 # ==============================================================================
 
 [Unit]
-Description=Ollama Vanguard Local Bridge Server
+Description=Vanguard Foundry Local Bridge Server
 After=network.target ollama.service
 Wants=ollama.service
 

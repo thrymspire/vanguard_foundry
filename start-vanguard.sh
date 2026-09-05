@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# OLLAMA VANGUARD // LINUX FOUNDRY LAUNCHER
+# VANGUARD FOUNDRY // LINUX FOUNDRY LAUNCHER
 # 1-Click Cockpit Initialization, Daemon Verification & Bridge Orchestration
 # ==============================================================================
 
@@ -20,7 +20,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
 echo -e "${C_SIGNAL}=======================================================================${C_RESET}"
-echo -e "${C_BRIGHT}${C_BOLD}        OLLAMA VANGUARD // UNIVERSAL FOUNDRY LAUNCHER${C_RESET}"
+echo -e "${C_BRIGHT}${C_BOLD}        VANGUARD FOUNDRY // UNIVERSAL FOUNDRY LAUNCHER${C_RESET}"
 echo -e "${C_SIGNAL}=======================================================================${C_RESET}"
 echo ""
 
@@ -155,7 +155,7 @@ fi
 # ------------------------------------------------------------------------------
 echo ""
 echo -e "${C_SIGNAL}=======================================================================${C_RESET}"
-echo -e "${C_BIO}${C_BOLD} [+] Ollama Vanguard is live and operational!${C_RESET}"
+echo -e "${C_BIO}${C_BOLD} [+] Vanguard Foundry is live and operational!${C_RESET}"
 echo -e "${C_SIGNAL}-----------------------------------------------------------------------${C_RESET}"
 echo -e "${C_INK}  * Web Dashboard:  ${C_BRIGHT}file://${HTML_PATH}${C_RESET}"
 echo -e "${C_INK}  * Bridge Server:  ${C_BRIGHT}http://127.0.0.1:11435${C_RESET}"

@@ -108,7 +108,7 @@ PARAMETER num_keep 24
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("OLLAMA VANGUARD // AUTOMATED MODEL REGISTRATION ENGINE")
+    print("VANGUARD FOUNDRY // AUTOMATED MODEL REGISTRATION ENGINE")
     print("=" * 60)
     scan_and_register_models()
     print("\nScan complete. Open vanguard.html to use your registered models.")

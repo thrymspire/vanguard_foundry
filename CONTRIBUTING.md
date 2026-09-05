@@ -1,6 +1,6 @@
-# Contributing to Ollama Vanguard
+# Contributing to Vanguard Foundry
 
-Thank you for your interest in contributing to **Ollama Vanguard**! This project is built to empower developers with high-performance, air-gapped local AI tools, automated context watermark tracking, and interactive artifact generation.
+Thank you for your interest in contributing to **Vanguard Foundry**! This project is built to empower developers with high-performance, air-gapped local AI tools, automated context watermark tracking, and interactive artifact generation.
 
 ---
 
@@ -21,10 +21,12 @@ Thank you for your interest in contributing to **Ollama Vanguard**! This project
    cd ollama_vanguard
    ```
 
-2. **Launch Vanguard**:
-   Run `Start-Vanguard.bat` on Windows, or launch:
+2. **Launch Vanguard Foundry**:
+   - **Linux**: `./start-vanguard.sh` (or `make start`)
+   - **Windows**: `Start-Vanguard.bat`
+   - Or launch manually:
    ```bash
-   python src/bridge.py
+   python3 src/bridge.py
    ```
    and open `src/vanguard.html` in your browser.
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# OLLAMA VANGUARD // GGUF AUTO-REGISTRATION TOOL (LINUX)
+# VANGUARD FOUNDRY // GGUF AUTO-REGISTRATION TOOL (LINUX)
 # Scans models/ recursively, compiles hardware-tuned Modelfiles, and registers
 # ==============================================================================
 
@@ -20,7 +20,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
 echo -e "${C_SIGNAL}=======================================================================${C_RESET}"
-echo -e "${C_BRIGHT}${C_BOLD}     OLLAMA VANGUARD // GGUF AUTO-REGISTRATION TOOL (LINUX)${C_RESET}"
+echo -e "${C_BRIGHT}${C_BOLD}     VANGUARD FOUNDRY // GGUF AUTO-REGISTRATION TOOL (LINUX)${C_RESET}"
 echo -e "${C_SIGNAL}=======================================================================${C_RESET}"
 echo ""
 

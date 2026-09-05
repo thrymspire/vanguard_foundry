@@ -1,11 +1,11 @@
 # ==============================================================================
-# OLLAMA VANGUARD // UNIVERSAL COMMAND RUNNER
+# VANGUARD FOUNDRY // UNIVERSAL COMMAND RUNNER
 # ==============================================================================
 
 .PHONY: help setup start run models register status clean
 
 help:
-	@echo "Ollama Vanguard — Universal Local AI Foundry"
+	@echo "Vanguard Foundry — Artifact Compiler & Local AI Foundry"
 	@echo ""
 	@echo "Available commands:"
 	@echo "  make setup     - Provision Linux environment and hardware tuning"
