@@ -1,0 +1,26 @@
+# Model weights & large binaries (User Drop-in)
+*.gguf
+*.bin
+*.safetensors
+*.pt
+*.onnx
+
+# Python cache & bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+env/
+
+# Artifacts output (preserve directory via .gitkeep)
+artifacts/*.html
+!artifacts/.gitkeep
+
+# IDE & OS clutter
+.idea/
+.vscode/
+*.swp
+*.bak
+Thumbs.db
+.DS_Store
