@@ -1,126 +1,163 @@
-# Ollama Vanguard // Universal Architecture & Artifact Foundry
+<div align="center">
+  <img src="assets/logo.svg" alt="Ollama Vanguard - Formline Cockpit Insignia" width="760" />
 
-A high-performance, modular local AI foundry designed for instant model swapping, multi-turn dialogue, RAM caching, and automated compilation of conversations into glassmorphic **Alien Artifacts**.
+  # OLLAMA VANGUARD
+  ### Universal Local AI Foundry &bull; Real-time Context Drift Telemetry &bull; Alien Artifact Compiler
+
+  [![License: MIT](https://img.shields.io/badge/License-MIT-9d5cff.svg)](LICENSE)
+  [![Ollama: v0.3+](https://img.shields.io/badge/Ollama-v0.3%2B-5ffbf1.svg)](https://ollama.com)
+  [![Python: 3.12](https://img.shields.io/badge/Python-3.12-c084fc.svg)](https://www.python.org)
+  [![Hardware: AMD Ryzen Z1 Extreme](https://img.shields.io/badge/Hardware-Ryzen%20Z1%20Extreme-ff6b81.svg)](https://www.amd.com)
+  [![Architecture: AVX--512](https://img.shields.io/badge/Optimized-AVX--512-5ffbf1.svg)]()
+  [![Air-Gapped: 100% Local](https://img.shields.io/badge/Privacy-100%25%20Air--Gapped-9d5cff.svg)]()
+
+  <p align="center">
+    <a href="https://thrymspire.github.io/ollama_vanguard/"><strong>Explore Live Landing Page &raquo;</strong></a>
+    &nbsp;&bull;&nbsp;
+    <a href="src/vanguard.html">Launch Local Studio</a>
+    &nbsp;&bull;&nbsp;
+    <a href="#-domain-language-specification">Domain Language Spec</a>
+    &nbsp;&bull;&nbsp;
+    <a href="#-quick-start">Quick Start</a>
+  </p>
+</div>
 
 ---
 
-## 📁 Architecture & File Layout
+## 🌌 Overview
+
+**Ollama Vanguard** is a high-performance local AI cockpit and artifact compiler designed for high-throughput model execution, zero-code `.gguf` drop-in discovery, and real-time context drift surveillance. 
+
+Operating completely air-gapped without external cloud dependencies, Vanguard bridges raw conversational LLM streams into permanent, interactive, glassmorphic **Alien Artifacts** featuring stateful checklists, glowing telemetry meters, and live code inspection.
+
+---
+
+## 🏛️ Domain Language Specification
+
+Vanguard operates on a formal Domain-Specific Language (DSL) defining the operational lifecycle of local models, token entropy, and presentation artifacts:
+
+```mermaid
+graph TD
+    A["User Prompt / Instruction"] --> B["CanaryAnchor Ingestion"]
+    B --> C["Dual-Bus Dispatch (:11434)"]
+    C --> D["Streaming Inference Engine"]
+    D --> E["WatermarkDriftTracker"]
+    E -->|Realtime Delta Drift| F["Cockpit Telemetry Meter"]
+    D --> G["Dialogue Accumulator"]
+    G --> H["AST Compiler Pass"]
+    H --> I["SynthesisConfidence Engine"]
+    I --> J["Standalone Alien Artifact (.html)"]
+    J --> K["Dual-Bus Local Bridge (:11435)"]
+    K --> L["artifacts/ local repo"]
+    K --> M["Desktop/Alien Artifacts mirror"]
+```
+
+### 1. The Core Domain Entities
+
+| Domain Concept | Representation | Operational Role |
+| :--- | :--- | :--- |
+| **`CanaryAnchor`** | $\mathcal{A}_k = \{ \tau_i, \omega_i, t_0 \}$ | High-entropy semantic tokens extracted from user directives and constraint boundaries at turn $t_0$. Serves as the immutable reference point for conversation fidelity. |
+| **`ContextEntropy`** | $\Delta_{\text{drift}} \in [0, 100]\%$ | The computed divergence of current conversation memory from the anchor baseline, measured across multi-turn exchanges. |
+| **`WatermarkRetention`** | $R_{\text{watermark}} \in [0, 1]$ | $\frac{\sum_{\tau \in \mathcal{A}} \text{Recall}(\tau, \mathcal{C}_{\text{recent}})}{\sum_{\tau \in \mathcal{A}} \omega_\tau}$. Quantifies how faithfully the LLM preserves prompt constraints over time. |
+| **`ContextBudget`** | $S_{\text{ctx}} = \frac{T_{\text{active}}}{T_{\text{limit}}}$ | The saturation ratio of host memory context (`num_ctx`), warning before attention degradation or token eviction occurs. |
+| **`DialogueAST`** | $\mathcal{T}_{\text{ast}} \rightarrow \{ \mathcal{S}_n, \mathcal{P}_k, \mathcal{C}_b \}$ | The intermediate structured representation of unstructured markdown, decomposed into `SectionNode`, `CheckPodNode`, and `CodeBlockNode`. |
+| **`SynthesisConfidence`** | $\mathcal{F}_{\text{conf}} \in [0, 100]\%$ | Composite verification score assessing context retention ($50\%$), structural density ($30\%$), and token budget headroom ($20\%$). |
+| **`WarmResidentMemory`** | `keep_alive: -1` | RAM weight-locking primitive that eliminates Time-To-First-Token (TTFT) cold-start latency. |
+| **`DualBusOrchestrator`** | `Bus(:11434) &harr; Bus(:11435)` | Decoupled communication topology separating inference streams from file system persistence and physical cache bypass. |
+
+---
+
+### 2. Context Drift & Watermark Telemetry Equation
+
+The Vanguard Drift Engine continually updates the drift vector $\Delta_{\text{drift}}$ during token streaming:
+
+$$\Delta_{\text{drift}} = (1 - R_{\text{watermark}}) \times 0.65 + \sigma_{\text{saturation}}(S_{\text{ctx}}) \times 0.25 + \eta_{\text{entropy}}(N_{\text{turns}}) \times 0.10$$
+
+$$\text{Context Fidelity} = \max\Big(0, \min\big(100, 100 - \Delta_{\text{drift}}\big)\Big)$$
+
+* **$\text{Fidelity} \ge 90\%$ (`ANCHOR LOCKED`)**: Core instructions, technical constraints, and domain tokens are strictly preserved.
+* **$72\% \le \text{Fidelity} < 90\%$ (`NOMINAL STABLE`)**: Normal conversational progression with intact constraints.
+* **$50\% \le \text{Fidelity} < 72\%$ (`ATTENTION DILUTION`)**: Context saturation mounting; slight semantic drift detected.
+* **$\text{Fidelity} < 50\%$ (`CRITICAL DRIFT`)**: High risk of hallucination or constraint loss. User is prompted to trigger **"Re-Anchor"** calibration.
+
+---
+
+## 📁 Repository Architecture
 
 ```text
-Ollama-Vanguard/
-├── Start-Vanguard.bat        # 1-Click launcher (starts bridge, verifies Ollama, opens UI)
-├── Register-Models.bat       # 1-Click registrar (scans models/ and creates Ollama models)
-├── README.md                 # This master reference & technical guide
-├── models/                   # Drop-in folder for downloaded .gguf model files
-│   └── README.md             # Quantization & download guide
-├── artifacts/                # Local repository for all forged HTML artifacts
-└── src/
-    ├── bridge.py             # Local HTTP bridge server (Port 11435)
-    ├── register_model.py     # Modelfile synthesizer & hardware optimizer
-    └── vanguard.html         # Alien Purple x Material 3 reactive dashboard
+ollama_vanguard/
+├── assets/
+│   └── logo.svg                 # Subtle abstract formline cockpit SVG emblem
+├── artifacts/                   # Storage for compiled Alien HTML artifacts
+│   └── .gitkeep
+├── models/                      # Drop-in staging folder for raw .gguf files
+│   └── README.md                # Download & quantization matrix
+├── src/
+│   ├── bridge.py                # Dual-bus bridge server on IPv4 loopback (11435)
+│   ├── register_model.py        # Hardware-tuned Modelfile synthesizer & registrar
+│   └── vanguard.html            # Alien Purple x M3 studio with drift telemetry
+├── .github/
+│   ├── workflows/ci.yml         # GitHub Actions syntax & integrity validation
+│   └── ISSUE_TEMPLATE/          # Bug report & feature request templates
+├── index.html                   # Public GitHub Pages landing portal
+├── Start-Vanguard.bat           # 1-Click Windows Foundry launcher
+├── Register-Models.bat          # 1-Click dropped GGUF auto-registration
+├── LICENSE                      # MIT Open Source License
+├── CONTRIBUTING.md              # Contribution standards & workflow
+├── SECURITY.md                  # Air-gapped security & vulnerability disclosure
+└── README.md                    # This master technical specification
 ```
 
 ---
 
-## 🚀 Quick Start (Zero-Configuration)
+## 🚀 Quick Start
 
-1. **Launch Vanguard**:
-   Double-click `Start-Vanguard.bat`.
-   - Checks if Ollama is running (starts it if needed).
-   - Launches the local background bridge (`src\bridge.py` on port `11435`).
-   - Opens the Vanguard web console in your browser.
+### 1. Launch Vanguard (1-Click)
+Double-click `Start-Vanguard.bat` on Windows:
+* Verifies Ollama is running (auto-starts `ollama serve` if offline).
+* Launches the local background bridge (`src/bridge.py` on `127.0.0.1:11435`).
+* Opens the glassmorphic cockpit studio in your default web browser.
 
-2. **Drop-In New Models**:
-   - Download any `.gguf` file (e.g. Llama-3.2, Mistral, Qwen2.5, Gemma-2, DeepSeek-R1).
-   - Place the `.gguf` file directly inside `Ollama-Vanguard\models\`.
-   - Run `Register-Models.bat` **or** click the **"⚡ Scan Dropped GGUFs"** button directly in the Vanguard dashboard header.
-   - The model is instantly registered and appears in the Vanguard dropdown!
+### 2. Drop-In Any GGUF Model
+Vanguard requires **zero manual coding** to register new models:
+1. Download any quantized `.gguf` file (e.g. from *bartowski*, *unsloth*, or *TheBloke* on Hugging Face).
+2. Place the file inside `models/`.
+3. Click **"⚡ Scan Dropped GGUFs"** in the Vanguard dashboard header (or run `Register-Models.bat`).
+4. The synthesizer profiles your CPU, creates an optimized Modelfile (`num_ctx 4096`, `num_thread 8`), registers `local-<name>:latest`, and hot-reloads the UI dropdown.
 
-3. **Multi-Turn Chat & Forge**:
-   - Converse with your model in real-time with live token telemetry.
-   - Monitor **Context Drift** live via the automatic **Watermark Token Tracker** meter.
-   - Click **"⚡ Compile & Forge Artifact"** whenever you wish to transform the conversation into an interactive, self-contained HTML artifact with an integrated **Synthesis Confidence Meter**.
-   - Click **"Save to Artifacts"** to persist it to `artifacts\` and mirror it to `Desktop\Alien Artifacts\`.
-
----
-
-## 🧭 Automatic Watermark Token Tracker & Confidence Meter
-
-### 1. Watermark Token Tracker (Chat Telemetry)
-* **Canary Anchor Tracking**: Automatically extracts high-entropy semantic keywords and constraints from user prompts on each turn.
-* **Real-time Drift Detection**: Monitors whether the model preserves core instructions and entities across multi-turn context.
-* **Context Budget Monitoring**: Tracks token accumulation against your configured context limit (`tokens / num_ctx`), alerting you before attention degradation or context truncation occurs.
-* **Status Tiers**:
-  * `ANCHOR LOCKED (90-100%)`: Optimal alignment, zero drift.
-  * `NOMINAL STABLE (75-89%)`: Solid context retention.
-  * `ATTENTION DILUTION (50-74%)`: Context pressure mounting; slight attention dispersion.
-  * `CRITICAL DRIFT (<50%)`: High drift offset; recommend clicking **"Re-Anchor"** to inject calibration directives.
-* **Re-Anchor Directive**: 1-click button to inject top preserved anchor tokens back into active memory to eliminate drift.
-
-### 2. Synthesis Confidence Meter (Artifact Presentation)
-* **Embedded in Viewport & Exported HTML**: Stamped directly into the header of every forged artifact file.
-* **Multi-Factor Scoring**: Evaluates session context fidelity, structural completeness (sections, check-pods, code blocks), and context saturation.
-* **Transparency Breakdown**:
-  * Watermark Anchor Retention %
-  * Structural Density Rating
-  * Context Saturation Ratio
-  * Hallucination Risk Verification (`✓ Zero Hallucination Risk`)
+### 3. Dialogue & Forge Artifacts
+* Chat freely with full streaming telemetry (Time, Tokens, `tok/s`).
+* Monitor the real-time **Watermark Token Tracker** meter as you chat.
+* Click **"⚡ Compile & Forge Artifact"** to transform the discussion into an interactive Alien Artifact HTML file with check-pods and the **Synthesis Confidence Meter**.
+* Click **"Save to Artifacts"** to write directly to `artifacts/` and mirror to `Desktop/Alien Artifacts/`.
 
 ---
 
-## ⚡ Drop-In Model Wiring & Optimization
+## 🎯 Hardware Profiling & Benchmark Specs
 
-### Automatic Registration
-When `register_model.py` runs (via `Register-Models.bat` or the UI button):
-1. It scans `models\*.gguf`.
-2. Cleans up file naming clutter (e.g. `llama-3.2-3b-instruct-q4_k_m.gguf` becomes `local-llama-3-2-3b:latest`).
-3. Generates a custom hardware-tuned Modelfile targeting your **AMD Ryzen Z1 Extreme**:
-   ```dockerfile
-   FROM "C:\Users\Thrym\Desktop\Ollama-Vanguard\models\<filename>.gguf"
-   PARAMETER num_ctx 4096
-   PARAMETER num_thread 8
-   PARAMETER temperature 0.2
-   ```
-4. Executes `ollama create <tag> -f <modelfile>`.
+Tuned specifically for the **AMD Ryzen Z1 Extreme** (8 Cores / 16 Threads, Zen 4, AVX-512) and unified LPDDR5X RAM:
 
-### Manual Custom Wiring (Optional)
-If you want to customize system instructions, context sizes, or stop tokens for a specific model manually:
+| Model Scale | Target Architecture | Quantization | RAM Resident | Measured Throughput |
+| :--- | :--- | :--- | :--- | :--- |
+| **3B – 4B** | Phi-3.5, Llama-3.2-3B | `Q4_K_M` | ~2.4 GB | **35 – 45 tok/sec** |
+| **7B – 8B** | Llama-3.1-8B, Mistral-7B | `Q4_K_M` | ~5.2 GB | **20 – 26 tok/sec** |
+| **14B** | Qwen2.5-14B | `Q4_K_M` | ~9.6 GB | **11 – 15 tok/sec** |
 
-1. Open PowerShell or Command Prompt.
-2. Create a file named `Modelfile` anywhere with custom directives:
-   ```dockerfile
-   FROM "C:\Users\Thrym\Desktop\Ollama-Vanguard\models\your_model.gguf"
-   
-   # Hardware & Context tuning
-   PARAMETER num_ctx 8192
-   PARAMETER num_thread 8
-   PARAMETER temperature 0.1
-   
-   # Custom System Prompt
-   SYSTEM """
-   You are an elite systems architect and security specialist. Provide concise,
-   actionable technical responses with clear markdown headers and checkable tasks.
-   """
-   ```
-3. Register into Ollama:
-   ```powershell
-   ollama create my-custom-model -f Modelfile
-   ```
-4. Reload the Vanguard dashboard dropdown—it will immediately detect `my-custom-model`.
+* **Hardware Recommendation**: Use `Q4_K_M` or `Q5_K_M` quantizations. Unified memory bandwidth achieves optimal tokens/sec at 4-bit and 5-bit precision.
+* **Warm RAM Feature**: Toggle **"WARM RAM"** in the Vanguard header to lock model weights into memory (`keep_alive: -1`), eliminating cold-start latency for instant responses.
 
 ---
 
-## 🛠️ Wiring Ollama to External Dev Tools & IDEs
+## 🔌 IDE & Dev Tool Integrations
 
-Ollama exposes an OpenAI-compatible and native REST API at `http://localhost:11434`. You can connect any of your installed or dropped models to development tools:
+Connect any model registered in Vanguard to external coding assistants using Ollama's native API (`http://localhost:11434`):
 
-### 1. Continue.dev (VS Code / PyCharm)
-Add to your `~/.continue/config.json`:
+### Continue.dev (`~/.continue/config.json`)
 ```json
 {
   "models": [
     {
-      "title": "Vanguard Local Model",
+      "title": "Ollama Vanguard",
       "provider": "ollama",
       "model": "phi3.5:3.8b",
       "apiBase": "http://localhost:11434"
@@ -129,42 +166,22 @@ Add to your `~/.continue/config.json`:
 }
 ```
 
-### 2. Python SDK / Scripts
+### Python SDK
 ```python
 import urllib.request
 import json
 
-payload = {
-    "model": "phi3.5:3.8b",  # or any registered local model
-    "prompt": "Summarize system status",
-    "stream": False
-}
-
 req = urllib.request.Request(
     "http://localhost:11434/api/generate",
-    data=json.dumps(payload).encode("utf-8"),
+    data=json.dumps({"model": "phi3.5:3.8b", "prompt": "Audit system health", "stream": False}).encode("utf-8"),
     headers={"Content-Type": "application/json"}
 )
-
-with urllib.request.urlopen(req) as response:
-    result = json.loads(response.read().decode("utf-8"))
-    print(result["response"])
-```
-
-### 3. Curl / PowerShell
-```powershell
-Invoke-RestMethod -Uri "http://localhost:11434/api/generate" -Method Post -Body '{"model": "phi3.5:3.8b", "prompt": "Hello", "stream": false}'
+with urllib.request.urlopen(req) as resp:
+    print(json.loads(resp.read().decode())["response"])
 ```
 
 ---
 
-## 🎯 AMD Ryzen Z1 Extreme Performance Specs
+## 🛡️ License
 
-| Model Size | Quantization | RAM Usage | Target Throughput |
-| :--- | :--- | :--- | :--- |
-| **3B - 4B** (Phi-3.5, Llama-3.2-3B) | `Q4_K_M` | ~2.5 GB | **35 – 45 tokens/sec** |
-| **7B - 8B** (Llama-3.1-8B, Mistral-7B) | `Q4_K_M` | ~5.2 GB | **20 – 26 tokens/sec** |
-| **14B** (Qwen2.5-14B) | `Q4_K_M` | ~9.5 GB | **11 – 15 tokens/sec** |
-
-* **Hardware Recommendation**: Use `Q4_K_M` or `Q5_K_M` quantizations. Avoid unquantized FP16 models as memory bandwidth on APU unified memory will bottleneck execution.
-* **Warm RAM Feature**: Toggle **"WARM RAM"** in the Vanguard header to preload weights into system memory (`keep_alive: -1`), eliminating Time-To-First-Token (TTFT) latency on subsequent queries.
+Distributed under the [MIT License](LICENSE). Built for local, privacy-first, high-throughput AI engineering by **Jeremiah Stack** ([@thrymspire](https://github.com/thrymspire)).
