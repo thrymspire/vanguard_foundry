@@ -8,10 +8,33 @@ import tempfile
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODELS_DIR = os.path.join(BASE_DIR, "models")
 
-def sanitize_model_name(filename):
+def sanitize_model_name(filepath):
+    filename = os.path.basename(filepath)
     name = os.path.splitext(filename)[0].lower()
+    parent_dir = os.path.basename(os.path.dirname(filepath)).lower()
+    
+    # Clean family-specific tags
+    if "gemma" in name or "gemma" in parent_dir:
+        m = re.search(r'(\d+b)', name)
+        size = m.group(1) if m else "12b"
+        return f"local-gemma-{size}:latest"
+    elif "nemotron" in name or "nemotron" in parent_dir:
+        m = re.search(r'(\d+b)', name)
+        size = m.group(1) if m else "4b"
+        return f"local-nemotron-{size}:latest"
+    elif "phi" in name or "phi" in parent_dir:
+        return "local-phi-3.5:latest"
+    elif "qwen" in name or "qwen" in parent_dir:
+        m = re.search(r'(\d+b)', name)
+        size = m.group(1) if m else "27b"
+        return f"local-qwen-{size}:latest"
+    elif "llama" in name or "llama" in parent_dir:
+        m = re.search(r'(\d+b)', name)
+        size = m.group(1) if m else "3b"
+        return f"local-llama-{size}:latest"
+
     # Remove common quantization clutter from tag name
-    name = re.sub(r'[\.\-_]?(q4_k_m|q4_0|q4_1|q5_k_m|q8_0|gguf|instruct|chat)', '', name)
+    name = re.sub(r'[\.\-_]?(q4_k_m|q4_0|q4_1|q5_k_m|q8_0|iq4_xs|iq\w+|gguf|instruct|chat|it|qat|i1)', '', name)
     name = re.sub(r'[^a-z0-9_\-]+', '-', name).strip('-')
     if not name:
         name = "custom-model"
@@ -19,7 +42,7 @@ def sanitize_model_name(filename):
 
 def get_registered_ollama_models():
     try:
-        res = subprocess.run(["ollama", "list"], capture_output=True, text=True, check=True)
+        res = subprocess.run(["ollama", "list"], capture_output=True, text=True, encoding="utf-8", errors="replace", check=True)
         lines = res.stdout.strip().splitlines()
         models = set()
         for line in lines[1:]:
@@ -33,11 +56,12 @@ def get_registered_ollama_models():
 
 def scan_and_register_models(context_window=4096, threads=8):
     os.makedirs(MODELS_DIR, exist_ok=True)
-    gguf_files = glob.glob(os.path.join(MODELS_DIR, "*.gguf"))
+    # Recursive search across subdirectories (e.g. models/Gemma/, models/Qwen/, etc.)
+    gguf_files = glob.glob(os.path.join(MODELS_DIR, "**", "*.gguf"), recursive=True)
 
     if not gguf_files:
         print(f"[INFO] No .gguf files found in: {MODELS_DIR}")
-        print("[INFO] Drop any .gguf file into the 'models' folder and run this script again.")
+        print("[INFO] Drop any .gguf file into the 'models' folder or subfolders and run this script again.")
         return []
 
     existing_models = get_registered_ollama_models()
@@ -45,7 +69,7 @@ def scan_and_register_models(context_window=4096, threads=8):
 
     for filepath in gguf_files:
         filename = os.path.basename(filepath)
-        tag = sanitize_model_name(filename)
+        tag = sanitize_model_name(filepath)
 
         if tag in existing_models:
             print(f"[SKIP] Model already registered in Ollama: {tag} ({filename})")
@@ -54,11 +78,15 @@ def scan_and_register_models(context_window=4096, threads=8):
 
         print(f"[REGISTERING] Creating Ollama model: {tag} from {filename}...")
 
-        # Build optimized Modelfile for Ryzen APU / Zen 4 hardware
+        # Build optimized Modelfile with Prompt Caching anchor (num_keep) and Ryzen Zen 4 AVX-512 parameters
         modelfile_content = f"""FROM "{filepath}"
 PARAMETER num_ctx {context_window}
 PARAMETER num_thread {threads}
 PARAMETER temperature 0.2
+PARAMETER top_p 0.9
+PARAMETER top_k 40
+PARAMETER repeat_penalty 1.1
+PARAMETER num_keep 24
 """
         with tempfile.NamedTemporaryFile("w", delete=False, suffix=".modelfile", encoding="utf-8") as tf:
             tf.write(modelfile_content)
@@ -66,7 +94,7 @@ PARAMETER temperature 0.2
 
         try:
             cmd = ["ollama", "create", tag, "-f", temp_path]
-            res = subprocess.run(cmd, capture_output=True, text=True)
+            res = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
             if res.returncode == 0:
                 print(f"[SUCCESS] Registered: {tag}")
                 registered.append(tag)

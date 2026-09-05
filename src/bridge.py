@@ -46,7 +46,9 @@ class VanguardBridgeHandler(BaseHTTPRequestHandler):
         elif self.path == "/scan_models":
             # Dynamically run model registrar
             try:
+                import importlib
                 import register_model
+                importlib.reload(register_model)
                 models = register_model.scan_and_register_models()
                 self.send_response(200)
                 self._set_cors()

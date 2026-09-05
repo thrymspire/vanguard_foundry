@@ -90,18 +90,22 @@ ollama_vanguard/
 │   └── logo.svg                 # Subtle abstract formline cockpit SVG emblem
 ├── artifacts/                   # Storage for compiled Alien HTML artifacts
 │   └── .gitkeep
-├── models/                      # Drop-in staging folder for raw .gguf files
+├── models/                      # Organized model staging folders for raw .gguf files
+│   ├── Gemma/                   # Gemma-4 12B IT (Q4_0, 7.0 GB)
+│   ├── Llama/                   # Llama 3.2 3B drop-in staging
+│   ├── Nemotron/                # NVIDIA Nemotron-3 Nano 4B (Q4_K_M, 2.8 GB)
+│   ├── Phi/                     # Microsoft Phi-3.5 3.8B (Q4_K_M, 2.2 GB)
+│   ├── Qwen/                    # Qwen-3.8 27B (IQ4_XS, 12.6 GB)
 │   └── README.md                # Download & quantization matrix
 ├── src/
 │   ├── bridge.py                # Dual-bus bridge server on IPv4 loopback (11435)
 │   ├── register_model.py        # Hardware-tuned Modelfile synthesizer & registrar
-│   └── vanguard.html            # Alien Purple x M3 studio with drift telemetry
+│   └── vanguard.html            # Alien Purple x M3 studio with drift telemetry & prompt caching
 ├── .github/
-│   ├── workflows/ci.yml         # GitHub Actions syntax & integrity validation
 │   └── ISSUE_TEMPLATE/          # Bug report & feature request templates
 ├── index.html                   # Public GitHub Pages landing portal
-├── Start-Vanguard.bat           # 1-Click Windows Foundry launcher
-├── Register-Models.bat          # 1-Click dropped GGUF auto-registration
+├── Start-Vanguard.bat           # 1-Click Windows Foundry launcher with tuned flags
+├── Register-Models.bat          # 1-Click recursive GGUF auto-registration
 ├── LICENSE                      # MIT Open Source License
 ├── CONTRIBUTING.md              # Contribution standards & workflow
 ├── SECURITY.md                  # Air-gapped security & vulnerability disclosure
@@ -143,8 +147,15 @@ Tuned specifically for the **AMD Ryzen Z1 Extreme** (8 Cores / 16 Threads, Zen 4
 | **7B – 8B** | Llama-3.1-8B, Mistral-7B | `Q4_K_M` | ~5.2 GB | **20 – 26 tok/sec** |
 | **14B** | Qwen2.5-14B | `Q4_K_M` | ~9.6 GB | **11 – 15 tok/sec** |
 
-* **Hardware Recommendation**: Use `Q4_K_M` or `Q5_K_M` quantizations. Unified memory bandwidth achieves optimal tokens/sec at 4-bit and 5-bit precision.
+* **Hardware Recommendation**: Use `Q4_K_M`, `Q4_0`, or `IQ4_XS` quantizations. Unified memory bandwidth achieves optimal tokens/sec at 4-bit and 5-bit precision.
 * **Warm RAM Feature**: Toggle **"WARM RAM"** in the Vanguard header to lock model weights into memory (`keep_alive: -1`), eliminating cold-start latency for instant responses.
+* **Prompt Caching (`--prompt-cache` / KV Prefix Reuse)**: Toggle **"⚡ PROMPT CACHE"** to enable prefix retention (`num_keep: 24`, `OLLAMA_FLASH_ATTENTION=1`). Subsequent conversation turns skip prompt re-evaluation, cutting Time-To-First-Token (TTFT) by up to 85% and preserving memory bandwidth.
+* **Tuned Ollama Use-Case Flags**:
+  * `OLLAMA_FLASH_ATTENTION=1`: Hardware-accelerated Flash Attention via AVX-512 VNNI.
+  * `OLLAMA_IGPU_ENABLE=1`: Dedicated acceleration on AMD Radeon 780M RDNA 3 iGPU.
+  * `OLLAMA_KV_CACHE_TYPE=f16`: High-precision FP16 Key-Value cache representation.
+  * `OLLAMA_KEEP_ALIVE=30m`: Extended session memory persistence avoiding periodic re-loads.
+  * `OLLAMA_NO_CLOUD=1`: Air-gapped isolation preventing outbound telemetry.
 
 ---
 

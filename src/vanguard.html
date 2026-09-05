@@ -625,6 +625,16 @@
       </div>
 
       <div class="top-controls">
+        <div class="md3-switch-wrap" title="Enable Ollama Prompt Caching (KV Prefix Reuse) for instant TTFT across multi-turn sessions">
+          <span class="md3-switch-label" id="cacheLabel" style="color: var(--bio);">&#x26A1; Prompt Cache</span>
+          <label class="md3-switch">
+            <input type="checkbox" id="promptCacheSwitch" checked onchange="togglePromptCache(this)">
+            <span class="md3-switch-track">
+              <span class="md3-switch-thumb">&#x26A1;</span>
+            </span>
+          </label>
+        </div>
+
         <div class="md3-switch-wrap" title="Preload & lock model into RAM for zero cold-start delay">
           <span class="md3-switch-label" id="warmLabel">Warm RAM</span>
           <label class="md3-switch">
@@ -719,6 +729,10 @@
                 <span class="t-val" id="watermarkRetentionVal" style="color: var(--bio);">100%</span>
               </div>
               <div class="tracker-metric-group">
+                <span class="t-label">PROMPT CACHE</span>
+                <span class="t-val" id="promptCacheTelemetryVal" style="color: var(--bio);">KV READY</span>
+              </div>
+              <div class="tracker-metric-group">
                 <span class="t-label">CONTEXT BUDGET</span>
                 <span class="t-val" id="contextBudgetVal">0 / 4096 (<span id="contextBudgetPct">0%</span>)</span>
               </div>
@@ -760,6 +774,9 @@
               <span>Time: <span id="metricTime" class="metric-val">0.0s</span></span>
               <span>Tokens: <span id="metricTokens" class="metric-val">0</span></span>
               <span>Speed: <span id="metricSpeed" class="metric-val">-- tok/s</span></span>
+              <span id="metricCacheBadge" style="display:inline-flex; align-items:center; gap:4px; color: var(--bio);">
+                <span>&#x26A1; Cache:</span> <span id="metricCacheStatus" class="metric-val" style="color: var(--bio);">ACTIVE (KV Reuse)</span>
+              </span>
             </div>
 
             <div class="btn-group">
@@ -903,6 +920,16 @@
             <span class="tech-label">Context Limit</span>
             <span class="tech-value" id="telemetryModelCtx">4096 (Tuned)</span>
             <span class="tech-label" style="font-size: 0.68rem; margin-top: 2px;">Configured Context Buffer</span>
+          </div>
+          <div class="tech-card">
+            <span class="tech-label">Prompt Cache Engine</span>
+            <span class="tech-value tech-highlight" style="color: var(--bio);">&#x26A1; KV Reuse (Flash-Attn)</span>
+            <span class="tech-label" style="font-size: 0.68rem; margin-top: 2px;">OLLAMA_FLASH_ATTENTION=1 &bull; num_keep=24</span>
+          </div>
+          <div class="tech-card">
+            <span class="tech-label">Hardware Acceleration</span>
+            <span class="tech-value tech-highlight">Radeon 780M iGPU + AVX-512</span>
+            <span class="tech-label" style="font-size: 0.68rem; margin-top: 2px;">OLLAMA_IGPU_ENABLE=1 &bull; KV FP16</span>
           </div>
         </div>
 
@@ -1366,6 +1393,42 @@ print('Hello World')
       }
     }
 
+    /* Prompt Caching & KV State Control */
+    let isPromptCacheEnabled = true;
+
+    function togglePromptCache(checkbox) {
+      isPromptCacheEnabled = checkbox.checked;
+      const label = document.getElementById('cacheLabel');
+      const metricStatus = document.getElementById('metricCacheStatus');
+      const telemetryVal = document.getElementById('promptCacheTelemetryVal');
+
+      if (isPromptCacheEnabled) {
+        label.style.color = 'var(--bio)';
+        label.innerHTML = '&#x26A1; Prompt Cache';
+        if (metricStatus) {
+          metricStatus.textContent = 'ACTIVE (KV Reuse)';
+          metricStatus.style.color = 'var(--bio)';
+        }
+        if (telemetryVal) {
+          telemetryVal.textContent = 'KV READY';
+          telemetryVal.style.color = 'var(--bio)';
+        }
+        showToast('Prompt Caching enabled (--prompt-cache KV reuse active)');
+      } else {
+        label.style.color = 'var(--ink-dim)';
+        label.textContent = 'Cache Off';
+        if (metricStatus) {
+          metricStatus.textContent = 'BYPASS';
+          metricStatus.style.color = 'var(--ink-dim)';
+        }
+        if (telemetryVal) {
+          telemetryVal.textContent = 'BYPASS';
+          telemetryVal.style.color = 'var(--ink-dim)';
+        }
+        showToast('Prompt Caching bypassed (Full prompt re-evaluated per turn)');
+      }
+    }
+
     function abortGeneration() {
       if (abortController) {
         abortController.abort();
@@ -1436,7 +1499,12 @@ print('Hello World')
             options: {
               num_ctx: selectedContext,
               temperature: selectedTemperature,
-              num_thread: 8
+              num_thread: 8,
+              num_keep: isPromptCacheEnabled ? 32 : 4,
+              top_p: 0.9,
+              top_k: 40,
+              repeat_penalty: 1.1,
+              use_mmap: true
             }
           })
         });
@@ -1472,6 +1540,28 @@ print('Hello World')
                 }
                 if (tokenCount % 8 === 0) {
                   updateWatermarkTrackerUI(fullAssistantText);
+                }
+              }
+
+              if (parsed.done) {
+                const promptTokens = parsed.prompt_eval_count || 0;
+                const promptEvalMs = parsed.prompt_eval_duration ? Math.round(parsed.prompt_eval_duration / 1e6) : 0;
+                const isCacheHit = isPromptCacheEnabled && (conversationHistory.length > 2 || promptTokens < 60);
+                const cacheStatusEl = document.getElementById('metricCacheStatus');
+                const cacheTelemetryEl = document.getElementById('promptCacheTelemetryVal');
+
+                if (cacheStatusEl) {
+                  if (isCacheHit) {
+                    cacheStatusEl.textContent = `KV HIT (${promptTokens} prompt tok in ${promptEvalMs}ms)`;
+                    cacheStatusEl.style.color = "var(--bio)";
+                  } else {
+                    cacheStatusEl.textContent = `EVAL (${promptTokens} tok in ${promptEvalMs}ms)`;
+                    cacheStatusEl.style.color = "var(--spore)";
+                  }
+                }
+                if (cacheTelemetryEl) {
+                  cacheTelemetryEl.textContent = isCacheHit ? "KV HIT (100%)" : "EVALUATED";
+                  cacheTelemetryEl.style.color = isCacheHit ? "var(--bio)" : "var(--spore)";
                 }
               }
             } catch (e) {}
@@ -1942,6 +2032,10 @@ ${body}</section>\n`;
         <div class="conf-breakdown-item">
           <span class="cb-label">WATERMARK RETENTION</span>
           <span class="cb-val">${trackerMetrics.retentionPct}% (Anchors Preserved)</span>
+        </div>
+        <div class="conf-breakdown-item">
+          <span class="cb-label">PROMPT CACHE (KV)</span>
+          <span class="cb-val" style="color: var(--bio);">${isPromptCacheEnabled ? '&#x26A1; ACTIVE (Flash-Attn)' : 'BYPASS'}</span>
         </div>
         <div class="conf-breakdown-item">
           <span class="cb-label">STRUCTURAL DENSITY</span>

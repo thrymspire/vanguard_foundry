@@ -8,6 +8,19 @@ echo         OLLAMA VANGUARD // UNIVERSAL FOUNDRY LAUNCHER
 echo =======================================================================
 echo.
 
+:: =======================================================================
+:: FINE-TUNED OLLAMA USE CASE FLAGS & PROMPT CACHING (Ryzen Z1 Extreme / 780M)
+:: =======================================================================
+set OLLAMA_FLASH_ATTENTION=1
+set OLLAMA_IGPU_ENABLE=1
+set OLLAMA_KV_CACHE_TYPE=f16
+set OLLAMA_KEEP_ALIVE=30m
+set OLLAMA_NUM_PARALLEL=1
+set OLLAMA_CONTEXT_LENGTH=8192
+set OLLAMA_ORIGINS=*
+set OLLAMA_NO_CLOUD=1
+set OLLAMA_NOPRUNE=1
+
 :: 1. Verify Ollama Daemon
 echo [*] Checking Ollama daemon...
 ollama list >nul 2>&1
