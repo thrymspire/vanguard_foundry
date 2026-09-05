@@ -142,18 +142,30 @@ fi
 echo ""
 echo -e "${C_BIO}[*] Profiling hardware accelerators (ROCm, CUDA, AVX-512)...${C_RESET}"
 
+ARCH=$(uname -m 2>/dev/null || echo "unknown")
 ROCM_GFX_OVERRIDE=""
-ACCELERATION_MODE="CPU (Zen/AVX)"
+ACCELERATION_MODE="CPU (${ARCH})"
 
-# 5a. Check NVIDIA CUDA
-if command -v nvidia-smi >/dev/null 2>&1; then
+# 5a. Detect Android AVF Debian VM (Pixel 10 Pro XL / Tensor G5)
+IS_ANDROID_VM=0
+if grep -qiE 'android|crosvm|microdroid|avf' /proc/version 2>/dev/null || [ -e /dev/vsock ]; then
+    if [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
+        IS_ANDROID_VM=1
+        ACCELERATION_MODE="ARM64 NEON / DotProd (Pixel AVF Debian VM - Tensor G5)"
+        echo -e "${C_BRIGHT}[+] Android Virtualization Framework (AVF) Debian VM Detected!${C_RESET}"
+        echo -e "${C_DIM}    Hardware: Google Tensor G5 (ARMv9-A) // Fast NEON Vector Execution${C_RESET}"
+    fi
+fi
+
+# 5b. Check NVIDIA CUDA (if not mobile VM)
+if [ "$IS_ANDROID_VM" -eq 0 ] && command -v nvidia-smi >/dev/null 2>&1; then
     GPU_NAME=$(nvidia-smi --query-gpu=name --format=csv,noheader 2>/dev/null | head -n 1 || echo "NVIDIA GPU")
     ACCELERATION_MODE="NVIDIA CUDA ($GPU_NAME)"
     echo -e "${C_BIO}[+] NVIDIA GPU Detected:${C_RESET} ${C_INK}${GPU_NAME}${C_RESET}"
 fi
 
-# 5b. Check AMD ROCm / RDNA APU / Discrete GPU
-if lspci 2>/dev/null | grep -iE 'vga|3d|display' | grep -iq 'AMD\|Advanced Micro Devices'; then
+# 5c. Check AMD ROCm / RDNA APU / Discrete GPU (x86_64)
+if [ "$IS_ANDROID_VM" -eq 0 ] && lspci 2>/dev/null | grep -iE 'vga|3d|display' | grep -iq 'AMD\|Advanced Micro Devices'; then
     AMD_CARD=$(lspci 2>/dev/null | grep -iE 'vga|3d|display' | grep -i 'AMD' | head -n 1 | sed 's/.*: //')
     echo -e "${C_BIO}[+] AMD Graphics Processor Detected:${C_RESET} ${C_INK}${AMD_CARD}${C_RESET}"
     
@@ -169,16 +181,20 @@ if lspci 2>/dev/null | grep -iE 'vga|3d|display' | grep -iq 'AMD\|Advanced Micro
     fi
 fi
 
-# 5c. Check CPU Features (AVX-512, AVX2, Core Count)
+# 5d. Check CPU Features (AVX-512, AVX2, ARM NEON, Core Count)
 if [ -f /proc/cpuinfo ]; then
-    CPU_MODEL=$(grep -m1 "model name" /proc/cpuinfo | cut -d: -f2 | sed 's/^[ \t]*//')
+    CPU_MODEL=$(grep -m1 "model name" /proc/cpuinfo 2>/dev/null | cut -d: -f2 | sed 's/^[ \t]*//')
+    [ -z "$CPU_MODEL" ] && CPU_MODEL=$(grep -m1 "Hardware" /proc/cpuinfo 2>/dev/null | cut -d: -f2 | sed 's/^[ \t]*//')
+    [ -z "$CPU_MODEL" ] && CPU_MODEL="${ARCH} Processor"
     THREAD_COUNT=$(nproc 2>/dev/null || grep -c "^processor" /proc/cpuinfo)
-    echo -e "${C_BIO}[+] CPU Architecture:${C_RESET} ${C_INK}${CPU_MODEL} (${THREAD_COUNT} threads)${C_RESET}"
+    echo -e "${C_BIO}[+] CPU Architecture:${C_RESET} ${C_INK}${CPU_MODEL} (${THREAD_COUNT} threads, ${ARCH})${C_RESET}"
 
-    if grep -q "avx512" /proc/cpuinfo; then
+    if grep -qi "avx512" /proc/cpuinfo; then
         echo -e "${C_BIO}[+] AVX-512 Vector Extensions Detected:${C_RESET} ${C_BRIGHT}Enabled (VNNI hardware acceleration active)${C_RESET}"
-    elif grep -q "avx2" /proc/cpuinfo; then
+    elif grep -qi "avx2" /proc/cpuinfo; then
         echo -e "${C_BIO}[+] AVX2 Vector Extensions Detected:${C_RESET} ${C_INK}Supported${C_RESET}"
+    elif grep -qiE 'asimd|neon' /proc/cpuinfo; then
+        echo -e "${C_BIO}[+] ARM NEON / ASIMD SIMD Extensions:${C_RESET} ${C_BRIGHT}Active (Optimized for ARMv8/ARMv9 FP16)${C_RESET}"
     fi
 fi
 
@@ -270,14 +286,17 @@ echo -e "${C_BIO}[*] Granting execution permissions to shell utilities...${C_RES
 chmod +x setup-linux.sh start-vanguard.sh register-models.sh 2>/dev/null || true
 
 # ------------------------------------------------------------------------------
-# 9. Register Existing Staged Models
+# 9. Hardware Resource Arbiter & Automated Model Provisioning
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "${C_BIO}[*] Triggering automated model registration scan for staged .gguf files...${C_RESET}"
+echo -e "${C_BIO}[*] Running Universal Hardware Arbiter (RAM & Compute Profiler)...${C_RESET}"
 if command -v python3 >/dev/null 2>&1; then
+    python3 src/hardware_probe.py --provision || true
+    echo ""
+    echo -e "${C_BIO}[*] Scanning models/ directory for hardware-tuned Modelfiles...${C_RESET}"
     python3 src/register_model.py || true
 else
-    echo -e "${C_WARN}[!] Python 3 not active; skipping initial model registration.${C_RESET}"
+    echo -e "${C_WARN}[!] Python 3 not active; skipping initial hardware provisioning.${C_RESET}"
 fi
 
 # ------------------------------------------------------------------------------

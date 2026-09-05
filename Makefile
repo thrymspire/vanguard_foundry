@@ -2,7 +2,7 @@
 # VANGUARD FOUNDRY // UNIVERSAL COMMAND RUNNER
 # ==============================================================================
 
-.PHONY: help setup start run models register status clean
+.PHONY: help setup start run models register probe provision status clean
 
 help:
 	@echo "Vanguard Foundry — Artifact Compiler & Local AI Foundry"
@@ -10,10 +10,18 @@ help:
 	@echo "Available commands:"
 	@echo "  make setup     - Provision Linux environment and hardware tuning"
 	@echo "  make start     - Launch Ollama daemon, bridge, and studio dashboard"
+	@echo "  make probe     - Run hardware arbiter diagnostics (RAM, CPU, GPU, VM)"
+	@echo "  make provision - Auto-pull hardware-tailored model if library is empty"
 	@echo "  make models    - Scan models/ folder and compile Modelfiles into Ollama"
 	@echo "  make status    - Check daemon status and registered models"
 	@echo "  make clean     - Clean transient bytecode and temporary files"
 	@echo ""
+
+probe:
+	@python3 src/hardware_probe.py
+
+provision:
+	@python3 src/hardware_probe.py --provision
 
 setup:
 	@bash setup-linux.sh

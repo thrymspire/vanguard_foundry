@@ -54,14 +54,38 @@ def get_registered_ollama_models():
         print(f"[WARN] Could not retrieve existing Ollama models: {e}")
         return set()
 
-def scan_and_register_models(context_window=4096, threads=8):
+SRC_DIR = os.path.dirname(os.path.abspath(__file__))
+if SRC_DIR not in sys.path:
+    sys.path.insert(0, SRC_DIR)
+
+try:
+    import hardware_probe
+    _TOTAL_RAM, _ = hardware_probe.get_system_memory_gb()
+    _COMPUTE = hardware_probe.get_compute_topology()
+    DEFAULT_THREADS = _COMPUTE["threads"]
+    DEFAULT_CTX = 8192 if _TOTAL_RAM >= 14.0 else (4096 if _TOTAL_RAM >= 6.0 else 2048)
+except Exception:
+    DEFAULT_THREADS = os.cpu_count() or 4
+    DEFAULT_CTX = 4096
+
+def scan_and_register_models(context_window=None, threads=None):
+    if threads is None:
+        threads = DEFAULT_THREADS
+    if context_window is None:
+        context_window = DEFAULT_CTX
+
     os.makedirs(MODELS_DIR, exist_ok=True)
     # Recursive search across subdirectories (e.g. models/Gemma/, models/Qwen/, etc.)
     gguf_files = glob.glob(os.path.join(MODELS_DIR, "**", "*.gguf"), recursive=True)
 
     if not gguf_files:
         print(f"[INFO] No .gguf files found in: {MODELS_DIR}")
-        print("[INFO] Drop any .gguf file into the 'models' folder or subfolders and run this script again.")
+        print("[INFO] Checking if hardware-tailored model can be provisioned from library...")
+        try:
+            import hardware_probe
+            hardware_probe.auto_provision(pull_if_empty=True)
+        except Exception as e:
+            print(f"[INFO] Drop any .gguf file into models/ or pull a model via Ollama: {e}")
         return []
 
     existing_models = get_registered_ollama_models()
